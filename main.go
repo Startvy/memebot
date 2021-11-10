@@ -33,14 +33,15 @@ func init() {
 }
 
 func main() {
+	botToken, _ := os.LookupEnv("BOT_TOKEN")
+	channelId, _ := os.LookupEnv("CHANNEL")
+	isLoopBot, _ := os.LookupEnv("IS_LOOP_BOT")
+
 	start, _ := time.Parse("15:00", "22:00")
 	end, _ := time.Parse("15:00", "09:00")
 	workTime := WorkTime{false, start, end}
 
 	time.Parse("15:00", "20")
-
-	botToken, _ := os.LookupEnv("BOT_TOKEN")
-	channelId, _ := os.LookupEnv("CHANNEL")
 
 	bot, err := configBot(botToken)
 	if err != nil {
@@ -51,20 +52,23 @@ func main() {
 
 	sendMeme(bot, channelId, workTime)
 
-	ticker := time.NewTicker(60 * time.Minute)
-	quit := make(chan struct{})
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				sendMeme(bot, channelId, workTime)
-			case <-quit:
-				ticker.Stop()
-				return
-			}
-		}
-	}()
+	if isLoopBot == "true" {
 
-	for {
+		ticker := time.NewTicker(60 * time.Minute)
+		quit := make(chan struct{})
+		go func() {
+			for {
+				select {
+				case <-ticker.C:
+					sendMeme(bot, channelId, workTime)
+				case <-quit:
+					ticker.Stop()
+					return
+				}
+			}
+		}()
+
+		for {
+		}
 	}
 }

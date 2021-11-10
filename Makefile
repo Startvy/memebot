@@ -1,4 +1,4 @@
-build:
+build_meme:
 	mkdir -p build
 	sudo docker-compose -f docker-compose.build.yml up
 	sudo chmod +x build/memebot
