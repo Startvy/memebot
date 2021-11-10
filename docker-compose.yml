@@ -1,0 +1,7 @@
+version: "3"  # optional since v1.27.0
+services:
+  bot:
+    build: .
+    volumes:
+      - .:/app
+    command: ["go", "run", "."]

@@ -17,10 +17,12 @@ func getMeme() Responce {
 	return meme
 }
 
-func sendMeme(bot *tgbotapi.BotAPI, channel string) {
+func sendMeme(bot *tgbotapi.BotAPI, channel string, workTime WorkTime) {
+	if workTime.IsWorkTime == workTime.CheckTimePeriod(time.Now()) {
+		return
+	}
 	meme := getMeme()
-	// message := tgbotapi.NewPhoto(MASTER_CHAT_ID, tgbotapi.FileURL(meme.URL))
-	message := tgbotapi.NewPhotoToChannel("@memetikovo", tgbotapi.FileURL(meme.URL))
+	message := tgbotapi.NewPhotoToChannel(channel, tgbotapi.FileURL(meme.URL))
 	bot.Send(message)
 }
 
@@ -31,6 +33,12 @@ func init() {
 }
 
 func main() {
+	start, _ := time.Parse("15:00", "22:00")
+	end, _ := time.Parse("15:00", "09:00")
+	workTime := WorkTime{false, start, end}
+
+	time.Parse("15:00", "20")
+
 	botToken, _ := os.LookupEnv("BOT_TOKEN")
 	channelId, _ := os.LookupEnv("CHANNEL")
 
@@ -41,15 +49,15 @@ func main() {
 
 	go startBot(bot)
 
-	sendMeme(bot, channelId)
+	sendMeme(bot, channelId, workTime)
 
-	ticker := time.NewTicker(30 * time.Minute)
+	ticker := time.NewTicker(60 * time.Minute)
 	quit := make(chan struct{})
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				sendMeme(bot, channelId)
+				sendMeme(bot, channelId, workTime)
 			case <-quit:
 				ticker.Stop()
 				return
